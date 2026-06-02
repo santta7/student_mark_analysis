@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Elements -->
+  <title>Semester Grade Analyzer & Analytics Dashboard</title>
+  <meta name="description" content="Track your semester results, monitor SGPA trends, calculate CGPA, run What-If planners, and view custom student analytics.">
+  
+  <!-- FontAwesome Icons & Chart.js CDNs -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Sidebar Navigation -->
+  <aside>
+    <div class="logo-container">
+      <div class="logo-icon">
+        <i class="fas fa-chart-line"></i>
+      </div>
+      <div class="logo-text">MarkAnalytics</div>
+    </div>
+    
+    <ul class="nav-links">
+      <li class="nav-item active" data-tab="dashboard">
+        <a href="#dashboard" id="nav-btn-dashboard"><i class="fas fa-th-large"></i>Dashboard</a>
+      </li>
+      <li class="nav-item" data-tab="semesters">
+        <a href="#semesters" id="nav-btn-semesters"><i class="fas fa-graduation-cap"></i>Semesters</a>
+      </li>
+      <li class="nav-item" data-tab="what-if">
+        <a href="#what-if" id="nav-btn-whatif"><i class="fas fa-calculator"></i>What-If Planner</a>
+      </li>
+      <li class="nav-item" data-tab="settings">
+        <a href="#settings" id="nav-btn-settings"><i class="fas fa-sliders-h"></i>Settings</a>
+      </li>
+    </ul>
+    
+    <div class="sidebar-footer">
+      <div class="profile-card">
+        <div class="profile-avatar">A</div>
+        <div class="profile-info">
+          <span class="profile-name">Alex Mercer</span>
+          <span class="profile-role">B.Tech CS & Engineering</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content View -->
+  <main>
+    <header>
+      <div class="page-title">
+        <h1>Academic Mark Analysis</h1>
+        <p>Analyze performance metrics, manage semester subjects, and map target results.</p>
+      </div>
+      <div class="header-actions">
+        <span id="student-roll-header" class="badge badge-primary" style="padding: 0.5rem 0.85rem; font-size: 0.85rem; font-weight: 500;"></span>
+        <button class="theme-toggle-btn" title="Toggle Light/Dark Theme">
+          <i class="fas fa-sun"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- 1. DASHBOARD TAB PANEL -->
+    <section id="dashboard-tab" class="tab-content active">
+      <!-- KPI Metric Cards Grid -->
+      <div class="kpi-grid">
+        <div class="card kpi-card" id="kpi-cgpa">
+          <div class="kpi-icon-container" style="background: rgba(99, 102, 241, 0.1); color: var(--primary-color)">
+            <i class="fas fa-award"></i>
+          </div>
+          <div class="kpi-details">
+            <span class="kpi-title">Cumulative CGPA</span>
+            <span class="kpi-value" id="kpi-cgpa-value">0.00</span>
+            <span class="kpi-subtext neutral" id="kpi-cgpa-subtext">Scale: Max 10.00</span>
+          </div>
+        </div>
+
+        <div class="card kpi-card" id="kpi-credits">
+          <div class="kpi-icon-container" style="background: rgba(14, 165, 233, 0.1); color: #0ea5e9">
+            <i class="fas fa-book"></i>
+          </div>
+          <div class="kpi-details">
+            <span class="kpi-title">Total Earned Credits</span>
+            <span class="kpi-value" id="kpi-credits-value">0</span>
+            <span class="kpi-subtext neutral" id="kpi-credits-subtext">0 semesters enrolled</span>
+          </div>
+        </div>
+
+        <div class="card kpi-card" id="kpi-pass">
+          <div class="kpi-icon-container" style="background: rgba(16, 185, 129, 0.1); color: var(--success)">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="kpi-details">
+            <span class="kpi-title">Overall Pass Rate</span>
+            <span class="kpi-value" id="kpi-pass-value">0%</span>
+            <span class="kpi-subtext neutral" id="kpi-pass-subtext">0 subjects passed</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Visualization Grid -->
+      <div class="charts-grid">
+        <!-- SGPA Progress Chart -->
+        <div class="card chart-card">
+          <div class="chart-header">
+            <div class="chart-title">
+              <h3>SGPA Progression Trend</h3>
+            </div>
+            <span class="badge badge-primary"><i class="fas fa-chart-line"></i> Semester GPA</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="sgpaProgressChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Grade Distribution Chart -->
+        <div class="card chart-card">
+          <div class="chart-header">
+            <div class="chart-title">
+              <h3>Grade Distributions</h3>
+            </div>
+            <span class="badge badge-primary"><i class="fas fa-chart-bar"></i> Total Counts</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="gradeDistChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Tips Card -->
+      <div class="card" style="display: flex; align-items: center; gap: 1rem; background: rgba(99, 102, 241, 0.05); border-color: rgba(99, 102, 241, 0.2);">
+        <i class="fas fa-lightbulb" style="font-size: 1.5rem; color: var(--primary-color)"></i>
+        <div>
+          <h4 style="margin-bottom: 0.15rem;">Pro-Tip</h4>
+          <p style="color: var(--text-secondary); font-size: 0.85rem;">Head over to the <strong>Semesters</strong> tab to add new courses, update marks, and view detailed subject logs. Your progress is saved automatically!</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. SEMESTERS TAB PANEL -->
+    <section id="semesters-tab" class="tab-content">
+      <!-- Dynamic Semesters Container (Grid View or Detail View) -->
+      <div id="semesters-container">
+        <!-- Rendered via JS -->
+      </div>
+    </section>
+
+    <!-- 3. WHAT-IF PLANNER TAB PANEL -->
+    <section id="what-if-tab" class="tab-content">
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <h3>Target CGPA Planner ("What-If" Analysis)</h3>
+        <p style="color: var(--text-secondary); margin-top: 0.25rem;">
+          Estimate the GPA requirement for your remaining semesters to hit your desired overall cumulative score.
+        </p>
+      </div>
+
+      <div class="what-if-grid">
+        <!-- Inputs Card -->
+        <div class="card" style="display: flex; flex-direction: column; gap: 1.25rem;">
+          <h4>Planner Inputs</h4>
+          
+          <div class="form-group">
+            <label>Completed Credits</label>
+            <div style="font-size: 1.25rem; font-weight: bold; margin-top: 0.25rem;" id="whatif-completed-credits">0</div>
+            <small style="color: var(--text-secondary)">Calculated from existing semesters</small>
+          </div>
+
+          <div class="form-group">
+            <label>Current Cumulative GPA</label>
+            <div style="font-size: 1.25rem; font-weight: bold; margin-top: 0.25rem; color: var(--primary-color);" id="whatif-current-cgpa">0.00</div>
+            <small style="color: var(--text-secondary)">Calculated from existing semesters</small>
+          </div>
+
+          <div class="form-group">
+            <label for="whatif-target-cgpa">Desired CGPA Goal</label>
+            <input type="number" id="whatif-target-cgpa" class="form-control" step="0.05" min="0" max="10">
+          </div>
+
+          <div class="form-group">
+            <label for="whatif-remaining-credits">Remaining Credits to Study</label>
+            <input type="number" id="whatif-remaining-credits" class="form-control" step="1" min="1" max="200">
+            <small style="color: var(--text-secondary)">Total credits of all upcoming semesters</small>
+          </div>
+        </div>
+
+        <!-- Output Visualization Card -->
+        <div class="card what-if-result-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 380px;">
+          <!-- SVG Gauge for CGPA status -->
+          <div class="gauge-circle">
+            <svg class="gauge-svg">
+              <defs>
+                <linearGradient id="gauge-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#6366f1" />
+                  <stop offset="100%" stop-color="#a855f7" />
+                </linearGradient>
+              </defs>
+              <circle class="gauge-bg" cx="90" cy="90" r="80" />
+              <circle class="gauge-fill" cx="90" cy="90" r="80" />
+            </svg>
+            <div class="gauge-text">
+              <span class="gauge-val">0.00</span>
+              <span class="gauge-lbl">Current CGPA</span>
+            </div>
+          </div>
+
+          <div class="required-gpa-container">
+            <div class="required-gpa-val" id="whatif-required-gpa-val">0.00</div>
+            <div class="required-gpa-lbl">Required SGPA average in future semesters</div>
+            <p id="whatif-feedback-text" style="color: var(--text-secondary); margin-top: 1rem; max-width: 360px; font-size: 0.9rem; line-height: 1.5;"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. SETTINGS & DATA MANAGEMENT TAB PANEL -->
+    <section id="settings-tab" class="tab-content">
+      <div class="charts-grid" style="grid-template-columns: 1.2fr 1fr;">
+        
+        <!-- Profile Config -->
+        <div class="card">
+          <h3 style="margin-bottom: 1.5rem;"><i class="fas fa-user-edit"></i> Edit Profile & Settings</h3>
+          <form id="profile-form">
+            <div class="form-group">
+              <label for="edit-student-name">Student Full Name</label>
+              <input type="text" id="edit-student-name" class="form-control" required placeholder="e.g. John Doe">
+            </div>
+            
+            <div class="form-group">
+              <label for="edit-course-name">Course / Department Name</label>
+              <input type="text" id="edit-course-name" class="form-control" required placeholder="e.g. Computer Science">
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="edit-roll-number">Registration / Roll No.</label>
+                <input type="text" id="edit-roll-number" class="form-control" placeholder="e.g. CS2024">
+              </div>
+              
+              <div class="form-group">
+                <label for="edit-target-cgpa">Global Target CGPA</label>
+                <input type="number" id="edit-target-cgpa" class="form-control" step="0.05" min="0" max="10">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="edit-grading-system">Grading Reference Model</label>
+              <select id="edit-grading-system" class="form-control">
+                <option value="10-point">10-Point CGPA Model (O, A+, A, B+, B, C, F)</option>
+                <option value="4-point">4-Point US GPA Model (A, B, C, D, F)</option>
+              </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem; width: 100%;">
+              <i class="fas fa-save"></i> Save Settings Profile
+            </button>
+          </form>
+        </div>
+
+        <!-- Data Backups & Reset -->
+        <div class="card" style="display: flex; flex-direction: column; gap: 1.5rem;">
+          <div>
+            <h3><i class="fas fa-database"></i> Data Management</h3>
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem;">
+              Back up your marks to local files or reset details.
+            </p>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <button class="btn btn-secondary" onclick="exportJSON()">
+              <i class="fas fa-file-download"></i> Export Data Backup (JSON)
+            </button>
+            
+            <button class="btn btn-secondary" onclick="exportCSV()">
+              <i class="fas fa-file-csv"></i> Export Transcript (CSV)
+            </button>
+
+            <button class="btn btn-secondary" onclick="printTranscript()">
+              <i class="fas fa-print"></i> Print Transcript Report (PDF)
+            </button>
+            
+            <!-- File Import -->
+            <label class="btn btn-secondary" style="text-align: center; justify-content: center; cursor: pointer;">
+              <i class="fas fa-file-upload"></i> Restore Backup (JSON)
+              <input type="file" id="import-file" style="display: none;" accept=".json">
+            </label>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid var(--border-color);">
+
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <h4>Reset Operations</h4>
+            <button class="btn btn-secondary" id="btn-load-sample">
+              <i class="fas fa-sync-alt"></i> Reload Default Sample Data
+            </button>
+            
+            <button class="btn btn-danger" id="btn-reset-data">
+              <i class="fas fa-exclamation-triangle"></i> Clear & Wipe All Data
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- ---------------------------------------------------- -->
+  <!-- MODAL: ADD SEMESTER -->
+  <!-- ---------------------------------------------------- -->
+  <div class="modal-overlay" id="modal-add-semester">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>Add New Semester</h3>
+        <button class="modal-close"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="add-semester-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="semester-name-input">Semester Display Name</label>
+            <input type="text" id="semester-name-input" class="form-control" placeholder="e.g. Semester 5" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-close-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Semester</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ---------------------------------------------------- -->
+  <!-- MODAL: EDIT SEMESTER -->
+  <!-- ---------------------------------------------------- -->
+  <div class="modal-overlay" id="modal-edit-semester">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>Edit Semester Name</h3>
+        <button class="modal-close"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="edit-semester-form">
+        <input type="hidden" id="edit-semester-id">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="edit-semester-name-input">Semester Display Name</label>
+            <input type="text" id="edit-semester-name-input" class="form-control" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-close-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update Name</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ---------------------------------------------------- -->
+  <!-- MODAL: ADD SUBJECT -->
+  <!-- ---------------------------------------------------- -->
+  <div class="modal-overlay" id="modal-add-subject">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>Add Subject Record</h3>
+        <button class="modal-close"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="add-subject-form">
+        <input type="hidden" id="add-subject-semester-id">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="subject-name">Subject Name / Course Code</label>
+            <input type="text" id="subject-name" class="form-control" placeholder="e.g. Database Management Systems" required>
+          </div>
+
+          <div class="form-group">
+            <label for="subject-credits">Course Credits (Weight)</label>
+            <input type="number" id="subject-credits" class="form-control" placeholder="e.g. 4" min="1" max="10" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="subject-internal">Internal Marks Obtained</label>
+              <input type="number" id="subject-internal" class="form-control" min="0" step="0.5" placeholder="0" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="subject-max-internal">Max Internal Marks</label>
+              <input type="number" id="subject-max-internal" class="form-control" min="1" placeholder="30" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="subject-external">External/Exam Marks Obtained</label>
+              <input type="number" id="subject-external" class="form-control" min="0" step="0.5" placeholder="0" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="subject-max-external">Max External Marks</label>
+              <input type="number" id="subject-max-external" class="form-control" min="1" placeholder="70" required>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-close-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Subject</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ---------------------------------------------------- -->
+  <!-- MODAL: EDIT SUBJECT -->
+  <!-- ---------------------------------------------------- -->
+  <div class="modal-overlay" id="modal-edit-subject">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>Edit Subject Record</h3>
+        <button class="modal-close"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="edit-subject-form">
+        <input type="hidden" id="edit-subject-semester-id">
+        <input type="hidden" id="edit-subject-id">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="edit-subject-name">Subject Name / Course Code</label>
+            <input type="text" id="edit-subject-name" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-subject-credits">Course Credits (Weight)</label>
+            <input type="number" id="edit-subject-credits" class="form-control" min="1" max="10" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="edit-subject-internal">Internal Marks Obtained</label>
+              <input type="number" id="edit-subject-internal" class="form-control" min="0" step="0.5" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="edit-subject-max-internal">Max Internal Marks</label>
+              <input type="number" id="edit-subject-max-internal" class="form-control" min="1" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="edit-subject-external">External/Exam Marks Obtained</label>
+              <input type="number" id="edit-subject-external" class="form-control" min="0" step="0.5" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="edit-subject-max-external">Max External Marks</label>
+              <input type="number" id="edit-subject-max-external" class="form-control" min="1" required>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-close-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification HUD -->
+  <div id="toast-container"></div>
+
+  <!-- External scripts -->
+  <script src="sampleData.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

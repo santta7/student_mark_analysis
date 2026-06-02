@@ -1,0 +1,20 @@
+{
+  "name": "student-mark-analysis",
+  "version": "1.0.0",
+  "description": "Student Mark and Semester Grade Analysis Dashboard",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx -y http-server ."
+  },
+  "keywords": [
+    "student",
+    "grade",
+    "mark",
+    "analysis",
+    "semester",
+    "cgpa",
+    "gpa"
+  ],
+  "author": "Antigravity",
+  "license": "MIT"
+}
